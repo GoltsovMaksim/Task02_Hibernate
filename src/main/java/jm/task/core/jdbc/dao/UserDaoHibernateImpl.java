@@ -24,7 +24,6 @@ public class UserDaoHibernateImpl implements UserDao {
                     "age SMALLINT NOT NULL)").addEntity(User.class);
             query.executeUpdate();
             session.getTransaction().commit();
-            session.close();
         } catch (Exception e) {
             System.out.println("Table has not been created!\n");
         }
@@ -34,7 +33,7 @@ public class UserDaoHibernateImpl implements UserDao {
     public void dropUsersTable() {
         try (Session session = sf.openSession()) {
             session.beginTransaction();
-            Query query = session.createSQLQuery("DROP TABLE IF EXISTS myDbTest.users").addEntity(User.class);
+            Query query = session.createSQLQuery("DROP TABLE IF EXISTS users").addEntity(User.class);
             query.executeUpdate();
             session.getTransaction().commit();
         } catch (Exception e) {
@@ -67,7 +66,7 @@ public class UserDaoHibernateImpl implements UserDao {
             System.out.printf("Unable to delete user with ID - %d", id);
         }
     }
-
+    @SuppressWarnings("unchecked")
     @Override
     public List<User> getAllUsers() {
         return (List<User>) sf.openSession().createQuery("From User").list();
