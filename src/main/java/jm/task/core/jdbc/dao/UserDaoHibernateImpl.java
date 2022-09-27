@@ -9,10 +9,11 @@ import org.hibernate.query.Query;
 import java.util.List;
 
 public class UserDaoHibernateImpl implements UserDao {
-    private final SessionFactory sf = Util.getSessionFactory();
-    public UserDaoHibernateImpl() {
-    }
+    private final SessionFactory sf;
 
+    public UserDaoHibernateImpl() {
+        sf = Util.getSessionFactory();
+    }
 
     @Override
     public void createUsersTable() {
@@ -66,6 +67,7 @@ public class UserDaoHibernateImpl implements UserDao {
             System.out.printf("Unable to delete user with ID - %d", id);
         }
     }
+
     @SuppressWarnings("unchecked")
     @Override
     public List<User> getAllUsers() {
@@ -74,7 +76,7 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void cleanUsersTable() {
-        try (Session session = sf.openSession()){
+        try (Session session = sf.openSession()) {
             session.beginTransaction();
             Query query = session.createSQLQuery("Truncate table users");
             query.executeUpdate();

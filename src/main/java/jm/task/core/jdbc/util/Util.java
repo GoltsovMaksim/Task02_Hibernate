@@ -12,15 +12,18 @@ import java.util.Map;
 
 public class Util {
 
+    private static final String URL = "jdbc:mysql://localhost:3306/myDbTest";
+    private static final String LOGIN = "root";
+    private static final String PASSWORD = "12345678";
+    private static Connection conn;
+
+    private static StandardServiceRegistry registry;
+    private static SessionFactory sf;
+
     public Util() {
     }
 
     public static Connection getConnection() {
-        String URL = "jdbc:mysql://localhost:3306/myDbTest";
-        String LOGIN = "root";
-        String PASSWORD = "12345678";
-        Connection conn;
-
         try {
             conn = DriverManager.getConnection(URL, LOGIN, PASSWORD);
             if (!conn.isClosed()) {
@@ -29,18 +32,13 @@ public class Util {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return null;
+        return conn;
     }
-
-    private static StandardServiceRegistry registry;
-    private static SessionFactory sf;
 
     public static SessionFactory getSessionFactory() {
         if (sf == null) {
             try {
-                StandardServiceRegistryBuilder registryBuilder =
-                        new StandardServiceRegistryBuilder();
-
+                StandardServiceRegistryBuilder registryBuilder = new StandardServiceRegistryBuilder();
                 Map<String, String> settings = new HashMap<>();
                 settings.put("hibernate.connection.driver_class", "com.mysql.cj.jdbc.Driver");
                 settings.put("hibernate.connection.url", "jdbc:mysql://localhost:3306/myDbTest");
@@ -48,14 +46,10 @@ public class Util {
                 settings.put("hibernate.connection.password", "12345678");
                 settings.put("hibernate.show_sql", "true");
                 settings.put("hibernate.hbm2ddl.auto", "update");
-
                 registryBuilder.applySettings(settings);
                 registry = registryBuilder.build();
-                MetadataSources sources = new MetadataSources(registry)
-                        .addAnnotatedClass(User.class);
-
+                MetadataSources sources = new MetadataSources(registry).addAnnotatedClass(User.class);
                 sf = sources.buildMetadata().buildSessionFactory();
-
             } catch (Exception e) {
                 System.out.println("SessionFactory creation failed");
                 if (registry != null) {
