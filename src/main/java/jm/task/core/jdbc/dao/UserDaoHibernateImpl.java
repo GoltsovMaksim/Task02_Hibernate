@@ -28,8 +28,10 @@ public class UserDaoHibernateImpl implements UserDao {
             query.executeUpdate();
             transaction.commit();
         } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
             System.out.println("Table has not been created!\n");
-            transaction.rollback();
         }
     }
 
@@ -41,8 +43,10 @@ public class UserDaoHibernateImpl implements UserDao {
             query.executeUpdate();
             transaction.commit();
         } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
             System.out.println("Table has not been deleted!\n");
-            transaction.rollback();
         }
     }
 
@@ -55,8 +59,10 @@ public class UserDaoHibernateImpl implements UserDao {
             transaction.commit();
             System.out.printf("User with name - %s, has been saved!", user.getName());
         } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
             System.out.println("Unable to save person to the table Users");
-            transaction.rollback();
         }
     }
 
@@ -69,8 +75,10 @@ public class UserDaoHibernateImpl implements UserDao {
             transaction.commit();
             System.out.printf("User with id - %d, has been deleted", id);
         } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
             System.out.printf("Unable to delete user with ID - %d", id);
-            transaction.rollback();
         }
     }
 
@@ -88,7 +96,10 @@ public class UserDaoHibernateImpl implements UserDao {
             query.executeUpdate();
             transaction.commit();
         } catch (Exception e) {
-            transaction.rollback();
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            System.out.println("Could`t truncate your table users");
         }
     }
 }
