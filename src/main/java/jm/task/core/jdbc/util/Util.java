@@ -18,7 +18,7 @@ public class Util {
     private static Connection conn;
 
     private static StandardServiceRegistry registry;
-    private static SessionFactory sf;
+    private static SessionFactory sessionFactory;
 
     public Util() {
     }
@@ -36,7 +36,7 @@ public class Util {
     }
 
     public static SessionFactory getSessionFactory() {
-        if (sf == null) {
+        if (sessionFactory == null) {
             try {
                 StandardServiceRegistryBuilder registryBuilder = new StandardServiceRegistryBuilder();
                 Map<String, String> settings = new HashMap<>();
@@ -49,7 +49,7 @@ public class Util {
                 registryBuilder.applySettings(settings);
                 registry = registryBuilder.build();
                 MetadataSources sources = new MetadataSources(registry).addAnnotatedClass(User.class);
-                sf = sources.buildMetadata().buildSessionFactory();
+                sessionFactory = sources.buildMetadata().buildSessionFactory();
             } catch (Exception e) {
                 System.out.println("SessionFactory creation failed");
                 if (registry != null) {
@@ -57,6 +57,6 @@ public class Util {
                 }
             }
         }
-        return sf;
+        return sessionFactory;
     }
 }

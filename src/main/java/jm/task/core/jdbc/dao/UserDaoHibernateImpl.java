@@ -4,83 +4,91 @@ import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
 import java.util.List;
 
 public class UserDaoHibernateImpl implements UserDao {
-    private final SessionFactory sf;
+    private final SessionFactory sessionFactory;
+    private Transaction transaction;
 
     public UserDaoHibernateImpl() {
-        sf = Util.getSessionFactory();
+        sessionFactory = Util.getSessionFactory();
     }
 
     @Override
     public void createUsersTable() {
-        try (Session session = sf.openSession()) {
-            session.beginTransaction();
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
             Query query = session.createSQLQuery("CREATE TABLE IF NOT EXISTS users " +
                     "(id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
                     "name VARCHAR(50) NOT NULL, lastName VARCHAR(50) NOT NULL, " +
                     "age SMALLINT NOT NULL)").addEntity(User.class);
             query.executeUpdate();
-            session.getTransaction().commit();
+            transaction.commit();
         } catch (Exception e) {
             System.out.println("Table has not been created!\n");
+            transaction.rollback();
         }
     }
 
     @Override
     public void dropUsersTable() {
-        try (Session session = sf.openSession()) {
-            session.beginTransaction();
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
             Query query = session.createSQLQuery("DROP TABLE IF EXISTS users").addEntity(User.class);
             query.executeUpdate();
-            session.getTransaction().commit();
+            transaction.commit();
         } catch (Exception e) {
             System.out.println("Table has not been deleted!\n");
+            transaction.rollback();
         }
     }
 
     @Override
     public void saveUser(String name, String lastName, byte age) {
-        try (Session session = sf.openSession()) {
-            session.beginTransaction();
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
             User user = new User(name, lastName, age);
             session.save(user);
-            session.getTransaction().commit();
+            transaction.commit();
             System.out.printf("User with name - %s, has been saved!", user.getName());
         } catch (Exception e) {
             System.out.println("Unable to save person to the table Users");
+            transaction.rollback();
         }
     }
 
     @Override
     public void removeUserById(long id) {
-        try (Session session = sf.openSession()) {
-            session.beginTransaction();
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
             User userTemp = session.get(User.class, id);
             session.delete(userTemp);
-            session.getTransaction().commit();
+            transaction.commit();
             System.out.printf("User with id - %d, has been deleted", id);
         } catch (Exception e) {
             System.out.printf("Unable to delete user with ID - %d", id);
+            transaction.rollback();
         }
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public List<User> getAllUsers() {
-        return (List<User>) sf.openSession().createQuery("From User").list();
+        return (List<User>) sessionFactory.openSession().createQuery("From User").list();
     }
 
     @Override
     public void cleanUsersTable() {
-        try (Session session = sf.openSession()) {
-            session.beginTransaction();
+        try (Session session = sessionFactory.openSession()) {
+            transaction = session.beginTransaction();
             Query query = session.createSQLQuery("Truncate table users");
             query.executeUpdate();
-            session.getTransaction().commit();
+            transaction.commit();
+        } catch (Exception e) {
+            transaction.rollback();
         }
     }
 }
