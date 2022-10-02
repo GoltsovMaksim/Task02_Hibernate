@@ -46,6 +46,7 @@ public class Util {
                 settings.put("hibernate.connection.password", "12345678");
                 settings.put("hibernate.show_sql", "true");
                 settings.put("hibernate.hbm2ddl.auto", "update");
+                settings.put("hibernate.connection.autocommit","false");
                 registryBuilder.applySettings(settings);
                 registry = registryBuilder.build();
                 MetadataSources sources = new MetadataSources(registry).addAnnotatedClass(User.class);
