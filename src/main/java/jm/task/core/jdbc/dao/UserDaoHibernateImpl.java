@@ -1,10 +1,12 @@
 package jm.task.core.jdbc.dao;
+
 import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
+
 import java.util.List;
 
 public class UserDaoHibernateImpl implements UserDao {
@@ -26,11 +28,11 @@ public class UserDaoHibernateImpl implements UserDao {
                     "name VARCHAR(50) NOT NULL, lastName VARCHAR(50) NOT NULL, " +
                     "age SMALLINT NOT NULL)").addEntity(User.class);
             query.executeUpdate();
-        } catch (Exception e) {
-            System.err.println(e);
-            transaction.markRollbackOnly();
-        } finally {
             transaction.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+            transaction.rollback();
+        } finally {
             session.close();
         }
     }
@@ -42,15 +44,13 @@ public class UserDaoHibernateImpl implements UserDao {
             transaction = session.beginTransaction();
             Query query = session.createSQLQuery("DROP TABLE IF EXISTS users").addEntity(User.class);
             query.executeUpdate();
+            transaction.commit();
         } catch (Exception e) {
-            System.err.println(e);
+            e.printStackTrace();
             if (transaction != null) {
-                transaction.markRollbackOnly();
+                transaction.rollback();
             }
         } finally {
-            if (transaction != null) {
-                transaction.commit();
-            }
             session.close();
         }
     }
@@ -63,15 +63,13 @@ public class UserDaoHibernateImpl implements UserDao {
             User user = new User(name, lastName, age);
             session.save(user);
             System.out.printf("User with name - %s, has been saved!\n", user.getName());
+            transaction.commit();
         } catch (Exception e) {
-            System.err.println(e);
+            e.printStackTrace();
             if (transaction != null) {
-                transaction.markRollbackOnly();
+                transaction.rollback();
             }
         } finally {
-            if (transaction != null) {
-                transaction.commit();
-            }
             session.close();
         }
     }
@@ -84,15 +82,13 @@ public class UserDaoHibernateImpl implements UserDao {
             User userTemp = session.get(User.class, id);
             session.delete(userTemp);
             System.out.printf("User with id - %d, has been deleted", id);
+            transaction.commit();
         } catch (Exception e) {
-            System.err.println(e);
+            e.printStackTrace();
             if (transaction != null) {
-                transaction.markRollbackOnly();
+                transaction.rollback();
             }
         } finally {
-            if (transaction != null) {
-                transaction.commit();
-            }
             session.close();
         }
     }
@@ -110,15 +106,13 @@ public class UserDaoHibernateImpl implements UserDao {
             transaction = session.beginTransaction();
             Query query = session.createSQLQuery("Truncate table users");
             query.executeUpdate();
+            transaction.commit();
         } catch (Exception e) {
-            System.err.println(e);
+            e.printStackTrace();
             if (transaction != null) {
-                transaction.markRollbackOnly();
+                transaction.rollback();
             }
         } finally {
-            if (transaction != null) {
-                transaction.commit();
-            }
             session.close();
         }
     }
